@@ -2,7 +2,7 @@
 
 pkgname=vim
 _topver=8.1
-_patchlevel=1777
+_patchlevel=1996
 _versiondir="${pkgname}${_topver//./}"
 pkgver=${_topver}.${_patchlevel}
 pkgrel=1
@@ -20,13 +20,13 @@ source=(${pkgname}-${pkgver}.tar.gz::https://github.com/vim/vim/archive/v${pkgve
         'pretend-cygwin-msys.patch'
         'accept-crlf.patch'
         'vim-completion')
-sha256sums=('67743f3974728a2d6a22a4055ab189b50656485c15dd48e032b59e96127b2d17'
+sha256sums=('7c675f3b3dba74628292df34142dda946f7cf6e75d04cbacc7588a7e21f717b0'
             'edd18e0756406ee7b659e4552e444c50c3a0c1e9fb4fce2ddd770c933ea6c7f5'
             'bca6e030d50c0d2468ab5c78aa0b359eb18a88a197de8406c593458ffedde922'
             '44d7738a8f801195898eeef766ff77506c717dd5d19145ade3c1c2349d4bc4fd'
             'f5f56f3e038f1ad1acb657f1c420d6f666573ab24b928d7e7ca6d1c5ac9182cd'
             '5fcec194d2fcb2a624358d8ce074e8d97b873b5c2fff2118491b57a4880737d9'
-            '0f3cc3c367efa3a90fdaec2fdd27745c029aa9eeb013c95b72e1805fb8abc19c'
+            'c240393d1e70c1211370591f3db21c204aa0eb5c4e31ffbad299363cad71f2d1'
             'bdca6069ef0fa995718f4b59fea85e58629259bb5a385d53e52d162d1463d4ff')
 
 prepare() {
@@ -68,7 +68,7 @@ build() {
     # --disable-tclinterp \
     # --disable-gpm --disable-sysmouse \
     # --disable-gui --without-x \
-    # --with-compiledby="<alexpux@gmail.com>"
+    # --with-compiledby="<campo@protonmail.com>"
   # make auto/osdef.h
   # make VIMRCLOC=/etc VIMRUNTIMEDIR=/usr/share/vim/vim${slot/\.} || die "make 2 fail"
   # mv vim.exe vi.exe
@@ -90,7 +90,7 @@ build() {
     --disable-gpm --disable-sysmouse \
     --disable-gui --without-x \
     CPPFLAGS="${CPPFLAGS} -I/usr/include/ncursesw" \
-    --with-compiledby="<alexpux@gmail.com>"
+    --with-compiledby="<campo@protonmail.com>"
 
   #make auto/osdef.h
   make -j1 VIMRCLOC=/etc VIMRUNTIMEDIR=/usr/share/vim/vim${_topver/\.}

@@ -1,25 +1,8 @@
-From: Johannes Schindelin <johannes.schindelin@gmx.de>
-Date: Tue, 15 Sep 2015 12:57:37 +0200
-Subject: [PATCH] Always accept CR/LF in MSys2
-
-Since we are running on Windows, we have to expect that at least some
-files or input use DOS line endings, still.
-
-It is okay, of course, to behave like Unix vim otherwise, e.g. to create
-LF-only files by default.
-
-Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
----
- src/ex_cmds2.c | 10 +++++-----
- src/fileio.c   |  2 +-
- src/quickfix.c |  2 +-
- 4 files changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/src/ex_cmds2.c b/src/ex_cmds2.c
-index 30f9e9d..c2d6e0f 100644
---- a/src/ex_cmds2.c
-+++ b/src/ex_cmds2.c
-@@ -2638,7 +2638,7 @@ struct source_cookie
+diff --git a/src/scriptfile.c b/src/scriptfile.c
+index d46b1e0b7..cf6fc8510 100644
+--- a/src/scriptfile.c
++++ b/src/scriptfile.c
+@@ -861,7 +861,7 @@ struct source_cookie
      char_u	*nextline;	// if not NULL: line that was read ahead
      linenr_T	sourcing_lnum;	// line number of the source file
      int		finished;	// ":finish" used
@@ -28,68 +11,39 @@ index 30f9e9d..c2d6e0f 100644
      int		fileformat;	// EOL_UNKNOWN, EOL_UNIX or EOL_DOS
      int		error;		// TRUE if LF found after CR-LF
  #endif
-@@ -2850,7 +2850,7 @@ do_source(fname, check_other, is_vimrc)
+@@ -1067,7 +1067,7 @@ do_source(
      else if (is_vimrc == DOSO_GVIMRC)
  	vimrc_found(fname_exp, (char_u *)"MYGVIMRC");
  
 -#ifdef USE_CRNL
 +#if defined(__MSYS__) || defined(USE_CRNL)
-     /* If no automatic file format: Set default to CR-NL. */
+     // If no automatic file format: Set default to CR-NL.
      if (*p_ffs == NUL)
  	cookie.fileformat = EOL_DOS;
-@@ -3298,7 +3298,7 @@ get_one_sourceline(sp)
+@@ -1386,7 +1386,7 @@ get_one_sourceline(struct source_cookie *sp)
      int			len;
      int			c;
      char_u		*buf;
 -#ifdef USE_CRNL
 +#if defined(__MSYS__) || defined(USE_CRNL)
-     int			has_cr;		/* CR-LF found */
+     int			has_cr;		// CR-LF found
  #endif
- #ifdef USE_CR
-@@ -3321,7 +3321,7 @@ get_one_sourceline(sp)
+     int			have_read = FALSE;
+@@ -1407,7 +1407,7 @@ get_one_sourceline(struct source_cookie *sp)
  							      sp->fp) == NULL)
- 		break;
+ 	    break;
  	len = ga.ga_len + (int)STRLEN(buf + ga.ga_len);
 -#ifdef USE_CRNL
 +#if defined(__MSYS__) || defined(USE_CRNL)
- 	/* Ignore a trailing CTRL-Z, when in Dos mode.	Only recognize the
- 	 * CTRL-Z by its own, or after a NL. */
+ 	// Ignore a trailing CTRL-Z, when in Dos mode.	Only recognize the
+ 	// CTRL-Z by its own, or after a NL.
  	if (	   (len == 1 || (len >= 2 && buf[len - 2] == '\n'))
-@@ -3342,7 +3342,7 @@ get_one_sourceline(sp)
+@@ -1428,7 +1428,7 @@ get_one_sourceline(struct source_cookie *sp)
  
- 	if (len >= 1 && buf[len - 1] == '\n')	/* remove trailing NL */
+ 	if (len >= 1 && buf[len - 1] == '\n')	// remove trailing NL
  	{
 -#ifdef USE_CRNL
 +#if defined(__MSYS__) || defined(USE_CRNL)
  	    has_cr = (len >= 2 && buf[len - 2] == '\r');
  	    if (sp->fileformat == EOL_UNKNOWN)
  	    {
-diff --git a/src/fileio.c b/src/fileio.c
-index 0f3f148..016f15d 100644
---- a/src/fileio.c
-+++ b/src/fileio.c
-@@ -5208,7 +5208,7 @@ msg_add_fileformat(eol_type)
- 	STRCAT(IObuff, shortmess(SHM_TEXT) ? _("[mac]") : _("[mac format]"));
- 	return TRUE;
-     }
--#ifdef USE_CRNL
-+#if defined(__MSYS__) || defined(USE_CRNL) || defined(USE_CR)
-     if (eol_type == EOL_UNIX)
-     {
- 	STRCAT(IObuff, shortmess(SHM_TEXT) ? _("[unix]") : _("[unix format]"));
-diff --git a/src/quickfix.c b/src/quickfix.c
-index 7243a0c..3278bd7 100644
---- a/src/quickfix.c
-+++ b/src/quickfix.c
-@@ -747,7 +747,7 @@ qf_init_ext(qi, efile, buf, tv, errorformat, newlist, lnumfirst, lnumlast,
-     if (state->linelen > 0 && state->linebuf[state->linelen - 1] == '\n')
-     {
- 	state->linebuf[state->linelen - 1] = NUL;
--#ifdef USE_CRNL
-+#if defined(__MSYS__) || defined(USE_CRNL)
- 	if (state->linelen > 1 && state->linebuf[state->linelen - 2] == '\r')
- 	    state->linebuf[state->linelen - 2] = NUL;
- #endif
--- 
-2.5.2
-
